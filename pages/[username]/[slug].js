@@ -20,7 +20,7 @@ export async function getStaticProps({ params }) {
 
   return {
     props: { post, path },
-    revalidate: 5000,
+    revalidate: 100,
   };
 }
 
@@ -29,24 +29,26 @@ export async function getStaticPaths() {
   const snapshot = await firestore.collectionGroup('posts').get();
 
   const paths = snapshot.docs.map((doc) => {
-    const { slug, username } = doc.data();
+    const { username, slug } = doc.data();
     return {
       params: { username, slug },
     };
   });
-
+  console.log(paths)
+  
   return {
     // must be in this format:
     // paths: [
     //   { params: { username, slug }}
     // ],
+    
     paths,
     fallback: 'blocking',
   };
 }
 
 export default function Post(props) {
-  const postRef: any = firestore.doc(props.path);
+  const postRef = firestore.doc(props.path);
   const [realtimePost] = useDocumentData(postRef);
 
   const post = realtimePost || props.post;
